@@ -1,0 +1,43 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea? We'd love to hear it. Before opening a request, please check that a
+        similar issue isn't already open.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem does this feature solve? What are you trying to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: |
+        How should this work? CLI flag names, behavior, edge cases — the more detail the better.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you thought about?
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Please confirm the proposal fits within the project's design constraints.
+      options:
+        - label: Linux only — no macOS or Windows support needed
+          required: true
+        - label: No new runtime dependencies (stdlib only)
+          required: true
