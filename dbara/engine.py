@@ -408,8 +408,11 @@ class RestoreEngine:
             xxh_path = Path(str(backup_file) + ".xxh128")
             sha_path = Path(str(backup_file) + ".sha256sum")
             checksum_file = xxh_path if xxh_path.is_file() else sha_path
+            # Manifest paths are prefixed with the app directory name (they were
+            # generated relative to app_folder_dir), so verification must run from
+            # the restore destination's parent, not the app directory itself.
             verify_checksum_file(
-                restore_path, checksum_file,
+                restore_path.parent, checksum_file,
                 self._runner, self._logger, self._config.fast_hash,
             )
         else:

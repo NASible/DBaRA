@@ -10,7 +10,6 @@ from dbara.engine import BackupEngine
 from dbara.log import Logger
 from tests.conftest import FakeDockerClient, FakeRunner, make_config
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

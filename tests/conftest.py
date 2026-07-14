@@ -55,6 +55,7 @@ def make_config(**overrides: Any) -> Config:
 class FakeRunner:
     def __init__(self) -> None:
         self.calls: list[list[str]] = []
+        self.call_cwds: list[Path | None] = []  # parallel to self.calls
         self._responses: list[tuple[list[str], subprocess.CompletedProcess[str]]] = []
         self._raise_on: list[list[str]] = []
         self._available: set[str] = {"zstd", "sha256sum", "xxh128sum", "sqlite3", "pigz"}
@@ -90,6 +91,7 @@ class FakeRunner:
         cwd: Path | None = None,
     ) -> subprocess.CompletedProcess[str]:
         self.calls.append(list(cmd))
+        self.call_cwds.append(cwd)
         for prefix in self._raise_on:
             if cmd[: len(prefix)] == prefix:
                 raise subprocess.CalledProcessError(1, cmd, "", "error")
@@ -124,6 +126,12 @@ class FakeRunner:
         for call in self.calls:
             if call[: len(prefix)] == list(prefix):
                 return call
+        return None
+
+    def cwd_of_first_call_with_prefix(self, *prefix: str) -> Path | None:
+        for call, cwd in zip(self.calls, self.call_cwds, strict=True):
+            if call[: len(prefix)] == list(prefix):
+                return cwd
         return None
 
 

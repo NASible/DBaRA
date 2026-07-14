@@ -4,9 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from dbara.config import Config, parse_ownership_map
+from dbara.config import parse_ownership_map
 from tests.conftest import make_config
-
 
 # ---------------------------------------------------------------------------
 # Config.validate()

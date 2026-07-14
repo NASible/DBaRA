@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dbara"
-version = "20260503"
+dynamic = ["version"]
 description = "Docker Backup and Restore Application — stop, archive, verify, restart"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-    { name = "NASible", url = "https://github.com/NASible" },
+    { name = "NASible" },
 ]
 keywords = ["docker", "backup", "restore", "archive", "homelab", "containers"]
 classifiers = [
@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: System :: Archiving :: Backup",
     "Topic :: System :: Systems Administration",
 ]
@@ -40,9 +41,11 @@ dbara = "dbara.cli:main"
 where = ["."]
 include = ["dbara*"]
 
+[tool.setuptools.dynamic]
+version = { attr = "dbara.__version__" }
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["integration: requires real system tools (skip with -m 'not integration')"]
 
 [tool.mypy]
 python_version = "3.11"

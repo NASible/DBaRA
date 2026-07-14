@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from dbara.cli import _build_config, build_parser, main
+from tests.conftest import FakeDockerClient
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -159,3 +160,48 @@ def test_apps_flag_parsed_as_list() -> None:
 def test_main_returns_1_for_restore_without_restore_dest_dir(tmp_path: Path) -> None:
     result = main(["-m", "restore", "-d", str(tmp_path), "-b", str(tmp_path), "-a", "app"])
     assert result == 1
+
+
+# ---------------------------------------------------------------------------
+# main() — single-app backup preserves prior container state
+# ---------------------------------------------------------------------------
+
+def _run_single_app_backup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    running: bool,
+) -> FakeDockerClient:
+    docker = FakeDockerClient(existing={"myapp"}, running={"myapp"} if running else set())
+
+    class StubEngine:
+        def __init__(self, **kwargs: object) -> None:
+            pass
+
+        def backup_single_app(self, app: str) -> None:
+            pass
+
+    monkeypatch.setattr("dbara.cli.shutil.which", lambda name: "/usr/bin/stub")
+    monkeypatch.setattr("dbara.cli.DockerClient", lambda **kwargs: docker)
+    monkeypatch.setattr("dbara.cli.BackupEngine", StubEngine)
+
+    result = main([
+        "-m", "backup", "-a", "myapp",
+        "-d", str(tmp_path), "-b", str(tmp_path),
+        "--state-dir", str(tmp_path / "state"),
+    ])
+    assert result == 0
+    return docker
+
+
+def test_single_app_backup_restarts_previously_running_container(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    docker = _run_single_app_backup(tmp_path, monkeypatch, running=True)
+    assert docker.started == ["myapp"]
+
+
+def test_single_app_backup_leaves_stopped_container_stopped(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    docker = _run_single_app_backup(tmp_path, monkeypatch, running=False)
+    assert docker.started == []

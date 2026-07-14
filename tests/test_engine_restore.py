@@ -203,6 +203,42 @@ def test_restore_skips_chown_when_no_owner_group(tmp_path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Checksum verification
+# ---------------------------------------------------------------------------
+
+def test_restore_verifies_checksums_from_restore_dest_parent(tmp_path: Path) -> None:
+    """Manifest paths are app-prefixed, so the hasher must run from the
+    directory CONTAINING the restored app dir — not the app dir itself."""
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    archive = _make_archive(backup_dir, "host_myapp_20240101_000000.bkup.tar.zst")
+    Path(str(archive) + ".xxh128").write_text("abc123  myapp/dummy.txt\n")
+
+    restore_dir = tmp_path / "restore"
+    restore_path = restore_dir / "myapp"
+    restore_path.mkdir(parents=True)
+    (restore_path / "dummy.txt").write_text("x")
+
+    config = make_config(
+        mode="restore",
+        app_name="myapp",
+        app_folder_dir=tmp_path / "apps",
+        backup_dest_dir=backup_dir,
+        restore_dest_dir=restore_dir,
+        hooks_dir=tmp_path / "hooks",
+        skip_checksum=False,
+    )
+    runner = FakeRunner()
+    runner.preset_response(["tar", "-I", "zstd", "-tf"], stdout="")
+    engine = RestoreEngine(
+        config=config, runner=runner, docker=FakeDockerClient(), logger=Logger()
+    )
+    engine.restore_app()
+
+    assert runner.cwd_of_first_call_with_prefix("xxh128sum", "-c") == restore_dir
+
+
+# ---------------------------------------------------------------------------
 # Multi-app restore (restore_apps / restore_all_apps)
 # ---------------------------------------------------------------------------
 

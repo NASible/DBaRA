@@ -1,4 +1,6 @@
 pytest>=8
 pytest-mock>=3
+mypy>=1.14
+ruff>=0.9
 build>=1.2
 twine>=5

@@ -3,16 +3,13 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-import pytest
-
 from dbara.checksum import (
     checksum_suffix,
     hash_program,
     signature_of_dir,
     verify_checksum_file,
 )
-from tests.conftest import FakeRunner, Logger, make_config
-
+from tests.conftest import FakeRunner, Logger
 
 # ---------------------------------------------------------------------------
 # hash_program / checksum_suffix

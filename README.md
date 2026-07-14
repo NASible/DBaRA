@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/dbara.svg)](https://pypi.org/project/dbara/)
 
 A production-ready Python CLI for backing up and restoring Docker application data directories.
-Stops the container, archives the data, verifies integrity, and restarts. 
+Stops the container, archives the data, verifies integrity, and restarts.
 
 ## Features
 
@@ -382,21 +382,12 @@ python3 -m venv .venv
 .venv/bin/pytest
 
 # Type-check
-.venv/bin/pip install mypy
 .venv/bin/mypy dbara
 
 # Lint
-.venv/bin/pip install ruff
-.venv/bin/ruff check dbara
+.venv/bin/ruff check dbara tests
 ```
 
 All tests are pure unit tests — no Docker, no real filesystem writes (except where `tmp_path`
 is used), no subprocess calls. The `FakeRunner` and `FakeDockerClient` test doubles in
 `tests/conftest.py` cover every code path without touching the system.
-
-Integration tests (real tar, real SQLite, real checksum tools) are in the same test files,
-marked `@pytest.mark.integration`, and skipped by default:
-
-```bash
-.venv/bin/pytest -m integration
-```

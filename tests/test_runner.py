@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import subprocess
-from pathlib import Path
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import call, patch
 
 import pytest
 
 from dbara.runner import CommandRunner
-from tests.conftest import make_config, Logger
-
+from tests.conftest import Logger, make_config
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -50,10 +48,9 @@ def test_retry_exhausts_and_raises() -> None:
     fail = subprocess.CalledProcessError(1, ["cmd"])
     with (
         patch("subprocess.run", side_effect=fail),
-        patch("time.sleep"),
+        patch("time.sleep"),pytest.raises(subprocess.CalledProcessError)
     ):
-        with pytest.raises(subprocess.CalledProcessError):
-            runner.run_with_retry(["cmd"])
+        runner.run_with_retry(["cmd"])
 
 
 def test_retry_sleep_uses_exponential_backoff() -> None:

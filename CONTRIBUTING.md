@@ -49,7 +49,7 @@ pytest --tb=short -q
 mypy dbara
 
 # Linting
-ruff check dbara
+ruff check dbara tests
 ```
 
 ---
@@ -67,6 +67,26 @@ ruff check dbara
 5. **Open the PR** against `main` and fill in the PR template.
 
 6. A maintainer will review within a few days. Be responsive to review feedback.
+
+---
+
+## Release Process (maintainers)
+
+Releases are tag-driven and use CalVer (`YYYYMMDD`). The version lives in ONE place:
+`__version__` in `dbara/__init__.py` (pyproject reads it via `tool.setuptools.dynamic`).
+
+1. Bump `__version__` in `dbara/__init__.py` to today's date, e.g. `"20260714"`.
+2. Commit and push to `main`; wait for CI to go green (tests + build run, no publish).
+3. Tag and push the tag — this triggers the publish job:
+
+   ```bash
+   git tag v20260714
+   git push origin v20260714
+   ```
+
+CI verifies the tag matches the built package version, then publishes to PyPI via
+OIDC trusted publishing (no API tokens). Tagging without bumping the version fails
+the run — either at the tag check, or at PyPI upload for a version that already exists.
 
 ---
 

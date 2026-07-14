@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from dbara.docker_ops import DockerClient
 from tests.conftest import FakeRunner, Logger
 

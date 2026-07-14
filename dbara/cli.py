@@ -210,9 +210,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         if config.all_apps:
             engine.backup_all_apps()
         else:
+            # Match backup_all_apps: only restart containers that were running
+            # before the backup, so a deliberately stopped container stays stopped.
+            was_running = docker.container_exists(config.app_name) and docker.container_running(
+                config.app_name
+            )
             docker.stop(config.app_name)
             engine.backup_single_app(config.app_name)
-            docker.start(config.app_name)
+            if was_running:
+                docker.start(config.app_name)
     else:
         engine_r = RestoreEngine(config=config, runner=runner, docker=docker, logger=logger)
         if config.all_apps:

@@ -25,9 +25,8 @@ def test_lock_raises_when_already_held(tmp_path: Path) -> None:
     fd = os.open(str(lock_path), os.O_CREAT | os.O_WRONLY)
     try:
         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        with pytest.raises(LockError, match="myapp"):
-            with app_lock("myapp", tmp_path):
-                pass
+        with pytest.raises(LockError, match="myapp"), app_lock("myapp", tmp_path):
+            pass
     finally:
         fcntl.flock(fd, fcntl.LOCK_UN)
         os.close(fd)

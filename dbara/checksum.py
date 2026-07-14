@@ -50,13 +50,16 @@ def create_checksum_file(
 
 
 def verify_checksum_file(
-    restore_path: Path,
+    base_dir: Path,
     checksum_file: Path,
     runner: CommandRunner,
     logger: Logger,
     fast_hash: bool,
 ) -> bool:
-    """Verify restore_path contents against checksum_file.
+    """Verify checksum_file from base_dir.
+
+    Manifest lines are app-prefixed relative paths (see create_checksum_file),
+    so base_dir must be the directory CONTAINING the restored app directory.
 
     Returns True if all checksums pass (or file missing — non-fatal).
     Returns False and logs warnings on any mismatch.
@@ -69,7 +72,7 @@ def verify_checksum_file(
     logger.info(f"Verifying checksums with {hasher}...")
     result = runner.run(
         [hasher, "-c", str(checksum_file)],
-        cwd=restore_path,
+        cwd=base_dir,
         capture_output=True,
         check=False,
     )
